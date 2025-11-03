@@ -14,6 +14,20 @@ function App() {
         {showAnswer && (
           <div>
             <h3>{data.answer}</h3>
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'left',
+                  alignItems: 'start'
+                }}
+              >
+                {data.tablature.map((line) => (
+                  <div>{line}</div>
+                ))}
+              </div>
+            </div>
             <button
               onClick={() => {
                 setShowAnswer(false);
