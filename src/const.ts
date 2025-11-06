@@ -7,6 +7,8 @@ import { KeyNote } from './types';
 // 5 (A)	110.00 Hz	A2
 // 6 (E)	82.41 Hz	E2
 
+export const completeFretboard = Array.from({ length: 6 }, (v) => Array.from({ length: 16 }, () => false))
+
 export const standardTuning: { keyName: string; octave: number }[] = [
   { keyName: 'e', octave: 4 },
   { keyName: 'b', octave: 3 },
