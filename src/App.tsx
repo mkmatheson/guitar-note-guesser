@@ -36,6 +36,7 @@ function App() {
             >
               Reset
             </button>
+            <div>Todo: checklist</div>
           </div>
         )}
       </>
