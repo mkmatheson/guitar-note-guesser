@@ -1,4 +1,10 @@
-import { accidentalSymbols, keyNotes, frets, standardTuning } from './const';
+import {
+  accidentalSymbols,
+  keyNotes,
+  frets,
+  standardTuning,
+  completeFretboard
+} from './const';
 import { KeyNote } from './types';
 
 const shiftScale = (index: number, notes: Array<string | number | KeyNote[]>) =>
@@ -22,9 +28,8 @@ const createTablature = (selectedStringIdx: number, fretIdx: number) => {
   });
 };
 
-export const generateNote = () => {
-  const selectedStringIdx = generateRandomArrayIdx(standardTuning.length);
-  const selectedString = standardTuning[selectedStringIdx];
+const getNote = (stringIdx: number, fretIdx: number) => {
+  const selectedString = standardTuning[stringIdx];
   const startingKeyNoteIdx = keyNotes.findIndex((key) =>
     key.find(
       (keyName) =>
@@ -32,6 +37,7 @@ export const generateNote = () => {
         keyName.accidental === 0
     )
   );
+
   const naturalKeyLineup = (
     shiftScale(startingKeyNoteIdx, keyNotes) as KeyNote[][]
   ).map((keyNote) => {
@@ -47,9 +53,8 @@ export const generateNote = () => {
   naturalKeyLineup.push(...naturalKeyLineup);
   naturalKeyLineup.splice(frets + 1);
   let startingOctave = selectedString.octave;
-  const selectedFretIndex = generateRandomArrayIdx(frets + 1);
 
-  for (let i = 0; i <= selectedFretIndex; i += 1) {
+  for (let i = 0; i <= fretIdx; i += 1) {
     if (
       naturalKeyLineup[i].key.toLowerCase() === 'c' &&
       naturalKeyLineup[i].accidental === 0
@@ -58,12 +63,47 @@ export const generateNote = () => {
     }
   }
 
-  const newKeyNote = naturalKeyLineup[selectedFretIndex];
+  const newKeyNote = naturalKeyLineup[fretIdx];
+  return {
+    string: stringIdx + 1,
+    fret: fretIdx,
+    answer: `${newKeyNote.key}${accidentalSymbols[newKeyNote.accidental || 0]}${startingOctave}`
+  };
+};
+
+const getRandomStringAndFretIndex = () => ({
+  stringIdx: generateRandomArrayIdx(standardTuning.length),
+  fretIdx: generateRandomArrayIdx(frets + 1)
+});
+
+const getAllNotes = () => {
+  return completeFretboard.map((string, stringIdx) =>
+    string.map((_, fretIdx) => {
+      return getNote(stringIdx, fretIdx);
+    })
+  );
+};
+
+export const generateNoteSet = () => {
+  const { stringIdx: randomStringIdx, fretIdx: randomFretIdx } =
+    getRandomStringAndFretIndex();
+  const selectedNote = getNote(randomStringIdx, randomFretIdx);
+  return {
+    matchingNotes: getAllNotes()
+      .flatMap((string) => string)
+      .filter(
+        (note) => note.answer.slice(0, -1) === selectedNote.answer.slice(0, -1)
+      ),
+    answerNote: selectedNote
+  };
+};
+
+export const generateNote = () => {
+  const { stringIdx: randomStringIdx, fretIdx: randomFretIdx } =
+    getRandomStringAndFretIndex();
 
   return {
-    string: selectedStringIdx + 1,
-    fret: selectedFretIndex,
-    answer: `${newKeyNote.key}${accidentalSymbols[newKeyNote.accidental || 0]}${startingOctave}`,
-    tablature: createTablature(selectedStringIdx, selectedFretIndex)
+    ...getNote(randomStringIdx, randomFretIdx),
+    tablature: createTablature(randomStringIdx, randomFretIdx)
   };
 };
